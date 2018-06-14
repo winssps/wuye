@@ -42,6 +42,7 @@ Connector.prototype.selectDatabase = async function (tablename, select) {
                 .select()
                 .where(select)
                 .execute(row => {
+                  //  console.log(row);
                     this.connection.row.push(row);
                 });
         })

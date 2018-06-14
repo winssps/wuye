@@ -9,15 +9,16 @@ import Repair from './repair.js';
 import User from './user.js';
 import Owner from './owner.js';
 import Charge from './charge.js';
-
+import Visit from './visit.js'
 
 const router = new Router();
 const secret = 'jwt_secret';
 
 router.use('/repair', Repair.routes(), Repair.allowedMethods());  //用户相关的路由
-router.use('/users', User.routes(), User.allowedMethods());  //用户相关的路由
+router.use('/user', User.routes(), User.allowedMethods());  //用户相关的路由
 router.use('/owner', Owner.routes(), Owner.allowedMethods());  //用户相关的路由
 router.use('/charge', Charge.routes(), Charge.allowedMethods());  //用户相关的路由
+router.use('/visit', Visit.routes(), Visit.allowedMethods());  //用户相关的路由
 
 
 
@@ -52,7 +53,7 @@ router.get('/role/:id/:id', async (ctx, next) => {
  * @type {String}
  */
 router.post('/role', async (ctx, next) => {
-    var data = JSON.parse(ctx.request.body);
+    var data = ctx.request.fields;
     await mysql.insertDatas("role", data);
     ctx.body = { status: 'ok' };
 });

@@ -16,7 +16,7 @@ const router = new Router();
 router.get('/', async (ctx, next) => {
   //  await mysql.updateDatas('Users', 'ID == 100001', 'Name', 'sssdf');
     const row = await mysql.selectDatabase('Users', 'true');
-    ctx.body = { status: 'ok', users: row };
+    ctx.body = { status: 'ok', datas: row };
 });
 
 
@@ -26,10 +26,19 @@ router.get('/', async (ctx, next) => {
  * 
 */
 router.get('/:id', async (ctx, next) => {
+    var rolelist = [];
     var ex = /[0-9]+/;
     var id = Number(ex.exec(ctx.url));
     const row = await mysql.selectDatabase('Users', `ID == ${id}`);
-    ctx.body = { status: 'ok', users: row };
+    const userid = row[0][0];
+    //根据 用户id 找用户角色表
+    var user_role = await mysql.selectDatabase('user_role', `user_id == ${userid}`);
+
+     for(let i=0; i< user_role.length;i++) {
+        var role = await mysql.selectDatabase('role', `id == ${user_role[i][2]}`);
+        rolelist.push(role[0]);
+     }
+    ctx.body = { status: 'ok', datas: row, role: rolelist };
 })
 
 /**
@@ -58,9 +67,12 @@ router.delete('/:id', async (ctx, next) => {
  * @type Phone
  */
 router.post('/', async (ctx, next) => {
-    var regfrom = JSON.parse(ctx.request.body);
+   // const regfrom = JSON.parse(ctx.request.fields);
+  // const regfrom = {};
+ //   console.log(ctx.request.fields);
+    const regfrom = ctx.request.fields;
     const { Name } = regfrom;
-    const row = await mysql.selectDatabase('Users', `Name == ${Name}`);
+    const row = await mysql.selectDatabase('Users', `Name == '${Name}'`);
     if (row.length != 0) {
         ctx.body = { 'status': 'error' }
     } else {
@@ -76,17 +88,18 @@ router.post('/', async (ctx, next) => {
 	"Password": vm.password
  */
 router.post('/login', async (ctx, next) => {
-    var login = JSON.parse(ctx.request.body);
+  //  var login = JSON.parse(ctx.request.body);
+    const login = ctx.request.fields;
     const { Name, Password } = login;
-    const row = await mysql.selectDatabase('Users', `Name == ${Name}`);
+    const row = await mysql.selectDatabase('Users', `Name == '${Name}'`);
     if (row.length != 0) {
-        if (row.Name == Name && row.Password == Password) {
-            ctx.body = { status: 'ok' };
+        if (row[0][1] == Name && row[0][2] == Password) {
+            ctx.body = { status: 'ok'};
         } else {
-            ctx.body = { status: 'error' };
+            ctx.body = { status: 'error', message: "账户密码错误" };
         }
     } else {
-        ctx.body = { status: 'error' };
+        ctx.body = { status: 'error',message: "账户不存在"  };
     }
 });
 
@@ -111,7 +124,7 @@ router.get('/userrole/:id', async (ctx, next) => {
  * @type {String}
  */
 router.post('/update', async (ctx, next) => {
-    var data = JSON.parse(ctx.request.body);
+    var data = ctx.request.fields;
     const { Name } = data;
     const row = await mysql.selectDatabase('Users', `Name == ${Name}`);
     if (row.length != 0) {

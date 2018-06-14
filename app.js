@@ -14,18 +14,12 @@ import moment from 'moment';
 import ProRouter from './router/prorouter'
 import Connector from './Connector';
 
-
-
 const app = new Koa();
 const router = new Router();
-const mysql = new Connector();
-
-
+//const mysql = new Connector();
 
 app.use(koaBetterBody());
 app.use(cors());
-
-
 
 app.use(require('koa-static')(path.join(__dirname, '../build')));
 

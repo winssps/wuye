@@ -8,52 +8,47 @@ import mysql from '../config2';
 const router = new Router();
 
 /**
- * [获取缴费列表]
+ * [获取来访信息列表]
  * @type {String}
  */
 router.get('/', async (ctx, next) => {
-    const row = await mysql.selectDatabase('charge', 'true');
+    const row = await mysql.selectDatabase('visit', 'true');
     ctx.body = { status: 'ok', datas: row };
 });
 
 /**
- * [添加缴费]
+ * [添加来访]
  * @type {String}
- *  "ownerID": vm.ownerID, //业主id
-    "chargeTime": vm.ownerAddress, //业主住址
-    "chargeName": vm.chargeName, //损坏描述
-    "chargeMoney": vm.chargeMoney, //维修费用
-    "update_Tm": upDate //时间
  */
 router.post('/', async (ctx, next) => {
     var data = ctx.request.fields;
-    await mysql.insertDatas("charge", data);
+    await mysql.insertDatas("visit", data);
     ctx.body = { status: 'ok', message: "更新成功" };
 });
 
 
 /**
- * [根据报修id获取该缴费数据]
+ * [根据来访id获取该来访数据]
  * @type {String}
  */
-router.get('/propid/:id', async (ctx, next) => {
+router.get('/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
-    var chargeId = Number(ex.exec(ctx.url));
-    const row = await mysql.selectDatabase('charge', `chargeID == ${chargeId}`);
+    var visitId = Number(ex.exec(ctx.url));
+    const row = await mysql.selectDatabase('visit', `id == ${visitId}`);
     ctx.body = { status: 'ok', datas: row };
 });
 
 /**
- * [添加缴费]
+ * [添加来访]
  * @type {String}
  */
 router.post('/update', async (ctx, next) => {
     var data = ctx.request.fields;
-    const { ownerID } = data;
-    const row = await mysql.selectDatabase('charge', `ownerID == ${ownerID}`);
+    const { visitName } = data;
+    const row = await mysql.selectDatabase('visit', `visitName == ${visitName}`);
     if (row.length != 0) {
-        await mysql.deleteDatas('charge', `ownerID == ${ownerID}`);
-        await mysql.insertDatas('charge', data);
+        await mysql.deleteDatas('visit', `visitName == ${visitName}`);
+        await mysql.insertDatas('visit', data);
         ctx.body = { status: 'ok', message: "更新成功" };
     } else {
         ctx.body = { status: 'error', message: "更新失败" };
@@ -61,15 +56,15 @@ router.post('/update', async (ctx, next) => {
 });
 
 /**
- * [删除报修repariIDrepariID]
+ * [删除]
  * @type {String}
  */
 router.get('/delete', async (ctx, next) => {
     const ex = /[0-9]+/;
     var id = Number(ex.exec(ctx.url));
-    const row = await mysql.selectDatabase('charge', `ownerID == ${id}`);
+    const row = await mysql.selectDatabase('visit', `id == ${id}`);
     if (row.length != 0) {
-        await mysql.deleteDatas("charge", `ownerID == ${id}`);
+        await mysql.deleteDatas("visit", `id == ${id}`);
         ctx.body = { status: "ok" };
     } else {
         ctx.body = { status: "error" };

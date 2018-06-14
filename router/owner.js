@@ -12,17 +12,22 @@ const router = new Router();
  * @type {String}
  */
 router.get('/', async (ctx, next) => {
-    const row = await selectDatabase('Owners', 'true');
-    ctx.body = { status: 'ok', owners: row };
+    const row = await mysql.selectDatabase('owners', 'true');
+    ctx.body = { status: 'ok', datas: row };
 });
 
 /**
  * [新增业主信息]
  * @type {String}
+* 	"ownerInfo": vm.ownerInfo,
+    "ownerName": vm.ownerName,
+    "ownerCart": vm.ownerCart,
+    "ownerTel": vm.ownerTel,
+    "update_Tm": upDate
  */
 router.post('/', async (ctx, next) => {
-    var data = JSON.parse(ctx.request.body);
-    await mysql.insertDatas("Owners", data);
+    var data = ctx.request.fields;
+    await mysql.insertDatas("owners", data);
     ctx.body = { status: 'ok' };
 });
 
@@ -30,11 +35,11 @@ router.post('/', async (ctx, next) => {
  * [根据业主id获取该业主数据]
  * @type {String}
  */
-router.get('/ownerID/:id', async (ctx, next) => {
+router.get('/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
     var ownerId = Number(ex.exec(ctx.url));
-    const row = await mysql.selectDatabase('Owners', `ownerID == ${ownerId}`);
-    ctx.body = { status: 'ok', owners: row };
+    const row = await mysql.selectDatabase('owners', `ownerID == ${ownerId}`);
+    ctx.body = { status: 'ok', datas: row };
 });
 
 
@@ -43,12 +48,12 @@ router.get('/ownerID/:id', async (ctx, next) => {
  * @type {String}
  */
 router.post('/update', async (ctx, next) => {
-    var data = JSON.parse(ctx.request.body);
-    const { ownerID, ownerInfo, ownerName, ownerCart, ownerTel, update_Tm } = data;
-    const row = await mysql.selectDatabase('Owners', `ownerID == ${ownerID}`);
+    var data = ctx.request.fields;
+    const { ownerID} = data;
+    const row = await mysql.selectDatabase('owners', `ownerID == ${ownerID}`);
     if (row.length != 0) {
-        await mysql.deleteDatas('Owners', `ownerID == ${ownerID}`);
-        await mysql.insertDatas('Owners', data);
+        await mysql.deleteDatas('owners', `ownerID == ${ownerID}`);
+        await mysql.insertDatas('owners', data);
         ctx.body = { status: 'ok' };
     } else {
         ctx.body = { status: 'error' };
@@ -59,12 +64,12 @@ router.post('/update', async (ctx, next) => {
  * [删除业主]
  * @type {String}
  */
-router.post('/delete/:id', async (ctx, next) => {
+router.get('/delete/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
     var id = Number(ex.exec(ctx.url));
-    const row = await mysql.selectDatabase('Owners', `ownerID == ${id}`);
+    const row = await mysql.selectDatabase('owners', `ownerID == ${id}`);
     if (row.length != 0) {
-        await mysql.deleteDatas("Owners", `ownerID == ${id}`);
+        await mysql.deleteDatas("owners", `ownerID == ${id}`);
         ctx.body = { status: "ok" };
     } else {
         ctx.body = { status: "error" };
