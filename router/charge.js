@@ -27,6 +27,7 @@ router.get('/', async (ctx, next) => {
  */
 router.post('/', async (ctx, next) => {
     var data = ctx.request.fields;
+    console.log(data);
     await mysql.insertDatas("charge", data);
     ctx.body = { status: 'ok', message: "更新成功" };
 });
@@ -61,10 +62,10 @@ router.post('/update', async (ctx, next) => {
 });
 
 /**
- * [删除报修repariIDrepariID]
+ * [删除缴费]
  * @type {String}
  */
-router.get('/delete', async (ctx, next) => {
+router.get('/delete/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
     var id = Number(ex.exec(ctx.url));
     const row = await mysql.selectDatabase('charge', `ownerID == ${id}`);

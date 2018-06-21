@@ -12,7 +12,7 @@ import Charge from './charge.js';
 import Visit from './visit.js'
 
 const router = new Router();
-const secret = 'jwt_secret';
+
 
 router.use('/repair', Repair.routes(), Repair.allowedMethods());  //用户相关的路由
 router.use('/user', User.routes(), User.allowedMethods());  //用户相关的路由
@@ -44,8 +44,13 @@ router.get('/role/:id/:id', async (ctx, next) => {
     var ex = /[0-9][0-9]*/g;
     var userid = Number(ex.exec(ctx.request.url));
     var roleid = Number(ex.exec(ctx.request.url));
-    await mysql.insertDatas("user_role", { user_id: userid, role_id: roleid })
-    ctx.body = { status: 'ok' };
+    var row = await mysql.selectDatabase("user_role", `role_id == ${roleid}`);
+    if(row.length != 0) {
+        ctx.body = { status: 'error' };
+    } else {
+        await mysql.insertDatas("user_role", { user_id: userid, role_id: roleid })
+        ctx.body = { status: 'ok' };
+    }
 });
 
 /**
@@ -64,10 +69,12 @@ router.post('/role', async (ctx, next) => {
  */
 router.delete('/role/:id', async (ctx, next) => {
     var ex = /[0-9][0-9]*/;
-    var id = ex.exec(ctx.request.url);
-    const row = await mysql.selectDatabase('role', `id == ${id}`);
+    var roleid = ex.exec(ctx.request.url);
+    const row = await mysql.selectDatabase('role', `id == ${roleid}`);
     if (row.length != 0) {
-        await mysql.deleteDatas("role", `id == ${id}`);
+        await mysql.deleteDatas("role", `id == ${roleid}`);
+        await mysql.deleteDatas('user_role', `role_id == ${roleid}`);
+        await mysql.deleteDatas("role_permission", `role_id == ${roleid}`);
         ctx.body = { status: "ok" };
     } else {
         ctx.body = { status: "error" };
@@ -92,10 +99,31 @@ router.get('/per/:id/:id', async (ctx, next) => {
     var ex = /[0-9][0-9]*/g;
     var roleid = Number(ex.exec(ctx.request.url));
     var perid = Number(ex.exec(ctx.request.url));
-    await mysql.insertDatas("role_permission", { role_id: roleid, permission_id: perid })
-    ctx.body = { status: 'ok' };
+    var row = await mysql.selectDatabase('role_permission', `permission_id == ${perid}`);
+    console.log(row);
+    if(row.length != 0) {
+        ctx.body = { status: 'error' };
+    } else {
+        await mysql.insertDatas("role_permission", { role_id: roleid, permission_id: perid })
+        ctx.body = { status: 'ok' };
+    }
 });
 
+/**
+ * [根据角色id 获取所有角色的所有权限]
+ * @type {[type]}
+ */
+router.get('/per/:id', async (ctx, next) => {
+    var rolelist = [];
+    var ex = /[0-9][0-9]*/g;
+    var roleid = Number(ex.exec(ctx.request.url));
+    var row = await mysql.selectDatabase("role_permission",  `role_id == ${roleid}` );
+    for(let i = 0;i < row.length;i++) {
+        var role = await mysql.selectDatabase('permission', `id == ${row[i][2]}`);
+        rolelist.push(role[0]);
+    }
+    ctx.body = { status: 'ok', datas: rolelist};
+});
 
 /*
 

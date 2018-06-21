@@ -19,7 +19,8 @@
     "koa-session-minimal": "^3.0.4",
     "koa-static": "^4.0.3",
     "koa-views": "^6.1.4",
-    "koa2-cors": "^2.0.5"
+    "koa2-cors": "^2.0.5",
+    "urlencode": "^1.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

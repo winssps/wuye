@@ -6,7 +6,7 @@ import path from 'path';
 import koaBetterBody from 'koa-better-body';
 import crypto from 'crypto';
 import session from 'koa-session';
-import jwt from 'koa-jwt';
+import jwt from 'koa-jwt';   
 import cors from 'koa2-cors';
 import moment from 'moment';
 
@@ -20,6 +20,15 @@ const router = new Router();
 
 app.use(koaBetterBody());
 app.use(cors());
+
+/*
+const secret = 'jwt_secret';
+const unlessArr = [
+    /^\/pro_Servers\/user/,
+];
+
+app.use(jwt({secret,}).unless({path: unlessArr}));
+*/
 
 app.use(require('koa-static')(path.join(__dirname, '../build')));
 

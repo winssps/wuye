@@ -2,6 +2,7 @@ import Router from "koa-router";
 import crypto from 'crypto';
 import jsonwebtoken from 'jsonwebtoken';
 
+import urlencode from 'urlencode';
 
 import mysql from '../config2';
 
@@ -39,6 +40,18 @@ router.get('/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
     var ownerId = Number(ex.exec(ctx.url));
     const row = await mysql.selectDatabase('owners', `ownerID == ${ownerId}`);
+    ctx.body = { status: 'ok', datas: row };
+});
+
+/**
+ * [根据业主名称获取该业主数据]
+ * @type {String}
+ */
+router.get('/name/:id', async (ctx, next) => {
+
+    const ownerName = ctx.url.slice(24, ctx.url.length);
+    var deName = urlencode.decode(ownerName, 'utf-8');0
+    const row = await mysql.selectDatabase('owners', `ownerName == '${deName}'`);
     ctx.body = { status: 'ok', datas: row };
 });
 

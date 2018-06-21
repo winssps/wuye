@@ -31,8 +31,8 @@ router.post('/', async (ctx, next) => {
  */
 router.get('/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
-    var ownerId = Number(ex.exec(ctx.url));
-    const row = await mysql.selectDatabase('repairs', `ownerID == ${ownerId}`);
+    var repairId = Number(ex.exec(ctx.url));
+    const row = await mysql.selectDatabase('repairs', `repairID == ${repairId}`);
     ctx.body = { status: 'ok', datas: row };
 });
 
@@ -42,8 +42,9 @@ router.get('/:id', async (ctx, next) => {
  */
 router.post('/update', async (ctx, next) => {
     var data = ctx.request.fields;
-    const { ownerId, repairInfo, repairIdentify, repairTime, update_Tm } = data;
-    const row = await mysql.selectDatabase('repairs', `ownerID == ${ownerId}`);
+    const { ownerID } = data;
+    console.log(ownerID);
+    const row = await mysql.selectDatabase('repairs', `ownerID == ${ownerID}`);
     if (row.length != 0) {
         await mysql.deleteDatas('repairs', `ownerID == ${ownerID}`);
         await mysql.insertDatas('repairs', data);
@@ -54,15 +55,15 @@ router.post('/update', async (ctx, next) => {
 });
 
 /**
- * [删除报修repariIDrepariID]
+ * [删除报修repariID]
  * @type {String}
  */
 router.get('/delete/:id', async (ctx, next) => {
     const ex = /[0-9]+/;
     var id = Number(ex.exec(ctx.url));
-    const row = await mysql.selectDatabase('repairs', `repairlD == ${id}`);
+    const row = await mysql.selectDatabase('repairs', `repairID == ${id}`);
     if (row.length != 0) {
-        await deleteDatas("repairs", `repairlD == ${id}`);
+        await mysql.deleteDatas("repairs", `repairID == ${id}`);
         ctx.body = { status: "ok" };
     } else {
         ctx.body = { status: "error" };
